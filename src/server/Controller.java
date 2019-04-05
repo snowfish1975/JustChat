@@ -1,4 +1,4 @@
-package sample;
+package server;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
@@ -6,7 +6,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 
-import static sample.Main.*;
+import static server.Main.*;
 
 public class Controller{
 

@@ -5,16 +5,23 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.KeyEvent;
 
-import static client.Main.*;
+import java.io.IOException;
+
+import static client.Client.*;
 
 public class Controller{
 
     @FXML
     public void onSendButtonClicked(){
         if (!tf.getText().equals("")) {
-            ta.setText(ta.getText().concat("\n").concat(tf.getText()));
-            tf.setText("");
-            bt.setDisable(true);
+            try {
+                out.writeUTF(tf.getText());
+                ta.setText(ta.getText().concat("\n").concat(tf.getText()));
+                bt.setDisable(true);
+                tf.setText("");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -36,19 +43,19 @@ public class Controller{
 
     public void onClose(){
         System.out.println("Trying to close...");
-        Main.theStage.close();
+        Client.theStage.close();
     }
 
     public void onHelp(){
-        TitledPane p = (TitledPane) Main.theScene.lookup("#helpPane");
-        TextArea t = (TextArea) Main.theScene.lookup("#helpContent");
+        TitledPane p = (TitledPane) Client.theScene.lookup("#helpPane");
+        TextArea t = (TextArea) Client.theScene.lookup("#helpContent");
         t.setText("JUST CHAT\nVersion 1.0\nBy Alexey Zimin\n\nGeekBrains JAVA 2 training course");
         p.setVisible(true);
     }
 
     public void onCloseHelp(){
         System.out.println("Закрываю помощь...");
-        TitledPane p = (TitledPane) Main.theScene.lookup("#helpPane");
+        TitledPane p = (TitledPane) Client.theScene.lookup("#helpPane");
         p.setVisible(false);
     }
 

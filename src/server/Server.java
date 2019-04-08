@@ -14,6 +14,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Server extends Application {
 
@@ -26,7 +28,8 @@ public class Server extends Application {
 
     public static ServerSocket serverSocket;
     public static DataInputStream in;
-    public static DataOutputStream out;
+    public static List<Socket> incomeCalls = new LinkedList<>();
+    public static boolean mustStop = false;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -45,32 +48,44 @@ public class Server extends Application {
             stop();
         }
 
+        incomeCalls.clear();
         new Thread(() -> {
-            ta.appendText(  "Сервер запущен, ожидаем подключения..."+"\n");
+            ta.appendText("Сервер запущен, ожидаем подключения..." + "\n");
             try {
                 serverSocket = new ServerSocket(8189);
                 Socket socket = serverSocket.accept();
-                ta.appendText("Клиент подключился: "+socket+"\n");
+                incomeCalls.add(socket);
+                ta.appendText("Клиент подключился: " + socket + "\n");
+                ta.appendText("Всего на связи " + incomeCalls.size() + " клиентов.\n");
                 in = new DataInputStream(socket.getInputStream());
-                ta.appendText("Входящий поток создан."+"\n");
-                out = new DataOutputStream(socket.getOutputStream());
-                ta.appendText("Исходящий поток создан."+"\n");
+                ta.appendText("Входящий поток создан." + "\n");
 
-                while (true) {
-                    ta.appendText("Ожидание сообщений от клиента..."+"\n");
+                while (!mustStop) {
+                    ta.appendText("Ожидание сообщений от клиента..." + "\n");
                     String str = in.readUTF();
                     if (str.equals("/end")) {
                         ta.appendText("Клиент разорвал соединение.");
                         socket.close();
                         break;
                     }
-                    ta.appendText( "КЛИЕНТ: " + str + "\n");
+                    ta.appendText("КЛИЕНТ: " + str + "\n");
+                    broadcast(str);
                 }
             } catch (
                     IOException e) {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    public static void broadcast(String str) {
+        try {
+            for (Socket s : incomeCalls) {
+                new DataOutputStream(s.getOutputStream()).writeUTF(str);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {

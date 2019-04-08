@@ -16,7 +16,6 @@ public class Controller{
         if (!tf.getText().equals("")) {
             try {
                 out.writeUTF(tf.getText());
-                ta.appendText(tf.getText()+"\n");
                 bt.setDisable(true);
                 tf.setText("");
             } catch (IOException e) {
@@ -44,6 +43,7 @@ public class Controller{
     public void onClose(){
         System.out.println("Обрабатывается закрытие программы по запросу пользователя.");
         Client.theStage.close();
+        mustStop = true;
     }
 
     public void onHelp(){

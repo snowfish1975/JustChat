@@ -13,11 +13,11 @@ public class Controller{
     public void onSendButtonClicked(){
         if (!tf.getText().equals("")) {
             try {
-                out.writeUTF(tf.getText());
+                broadcast(tf.getText());
             } catch (Exception e){
                 e.printStackTrace();
             }
-            ta.appendText(tf.getText()+"\n");
+            ta.appendText("СЕРВЕР: "+tf.getText()+"\n");
             tf.setText("");
             bt.setDisable(true);
         }
@@ -42,6 +42,7 @@ public class Controller{
     public void onClose(){
         System.out.println("Обрабатывается закрытие программы по запросу пользователя.");
         Server.theStage.close();
+        mustStop = true;
     }
 
     public void onHelp(){

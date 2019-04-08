@@ -31,6 +31,7 @@ public class Client extends Application {
     public static String strFromServer;
     public static DataInputStream in;
     public static DataOutputStream out;
+    public static boolean mustStop = false;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -66,13 +67,14 @@ public class Client extends Application {
 
         new Thread(() -> {
             try {
-                while (true) {
+                while (!mustStop) {
                 strFromServer = in.readUTF();
                 if (strFromServer.equalsIgnoreCase("/end")) {
                     closeConnection();
+                    mustStop = true;
                     break;
                 }
-                ta.appendText("\n" + strFromServer);
+                ta.appendText(  strFromServer+"\n");
                 }
             } catch (Exception e) {
                 e.printStackTrace();

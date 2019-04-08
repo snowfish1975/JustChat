@@ -1,7 +1,6 @@
 package server;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -25,11 +24,15 @@ public class Server extends Application {
     static TextField tf;
     static Button bt;
 
+    public static ServerSocket serverSocket;
+    public static DataInputStream in;
+    public static DataOutputStream out;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         theStage = primaryStage;
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Just Chat");
+        primaryStage.setTitle("Just Chat SERVER");
         theScene = new Scene(root, 300, 500);
         theStage.setScene(theScene);
         theStage.show();
@@ -42,41 +45,32 @@ public class Server extends Application {
             stop();
         }
 
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                runServer();
-            }
-            });
-    }
+        new Thread(() -> {
+            ta.appendText(  "Сервер запущен, ожидаем подключения..."+"\n");
+            try {
+                serverSocket = new ServerSocket(8189);
+                Socket socket = serverSocket.accept();
+                ta.appendText("Клиент подключился: "+socket+"\n");
+                in = new DataInputStream(socket.getInputStream());
+                ta.appendText("Входящий поток создан."+"\n");
+                out = new DataOutputStream(socket.getOutputStream());
+                ta.appendText("Исходящий поток создан."+"\n");
 
-    public static void runServer(){
-        Socket socket = null;
-        try {
-            ServerSocket serverSocket = new ServerSocket(8189);
-            ta.appendText("\n" + "Сервер запущен, ожидаем подключения...");
-            System.out.println("Сервер запущен, ожидаем подключения...");
-            socket = serverSocket.accept();
-            ta.appendText("\n" + "Клиент подключился");
-            System.out.println("Клиент подключился");
-            DataInputStream in = new DataInputStream(socket.getInputStream());
-            System.out.println("Input stream assigned");
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-            System.out.println("Output stream assigned");
-            theStage.show();
-
-            while (true) {
-                System.out.println("Enter listening mode");
-                String str = in.readUTF();
-                System.out.println("Message " + str + " received.");
-                if (str.equals("/end"))
-                    break;
-                ta.setText(ta.getText() + "\n" + "КЛИЕНТ: " + str);
+                while (true) {
+                    ta.appendText("Ожидание сообщений от клиента..."+"\n");
+                    String str = in.readUTF();
+                    if (str.equals("/end")) {
+                        ta.appendText("Клиент разорвал соединение.");
+                        socket.close();
+                        break;
+                    }
+                    ta.appendText( "КЛИЕНТ: " + str + "\n");
+                }
+            } catch (
+                    IOException e) {
+                e.printStackTrace();
             }
-        } catch (
-                IOException e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 
     public static void main(String[] args) {

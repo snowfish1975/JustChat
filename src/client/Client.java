@@ -19,8 +19,6 @@ public class Client extends Application {
     private final String SERVER_ADDR = "localhost";
     private final int SERVER_PORT = 8189;
     private Socket socket;
-    public static DataInputStream in;
-    public static DataOutputStream out;
 
 
     static Scene theScene;
@@ -30,11 +28,15 @@ public class Client extends Application {
     static TextField tf;
     static Button bt;
 
+    public static String strFromServer;
+    public static DataInputStream in;
+    public static DataOutputStream out;
+
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         theStage = primaryStage;
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Just Chat");
+        primaryStage.setTitle("Just Chat CLIENT");
         theScene = new Scene(root, 300, 500);
         primaryStage.setScene(theScene);
         primaryStage.show();
@@ -42,7 +44,7 @@ public class Client extends Application {
         tf = (TextField) theScene.lookup("#messageField");
         ta = (TextArea) theScene.lookup("#chatWindow");
         bt = (Button) theScene.lookup("#sendButton");
-        if (tf==null || ta==null || bt==null){
+        if (tf == null || ta == null || bt == null) {
             System.out.println("Не смог обнаружить один из необходимых визуальных элементов на сцене!");
             stop();
         }
@@ -61,19 +63,21 @@ public class Client extends Application {
         System.out.println(socket);
         in = new DataInputStream(socket.getInputStream());
         out = new DataOutputStream(socket.getOutputStream());
-        try {
-            while (true) {
-                String strFromServer = in.readUTF();
-                System.out.println("Still reading...");
+
+        new Thread(() -> {
+            try {
+                while (true) {
+                strFromServer = in.readUTF();
                 if (strFromServer.equalsIgnoreCase("/end")) {
                     closeConnection();
                     break;
                 }
                 ta.appendText("\n" + strFromServer);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 
     public void closeConnection() {

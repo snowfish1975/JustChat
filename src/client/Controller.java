@@ -16,7 +16,7 @@ public class Controller{
         if (!tf.getText().equals("")) {
             try {
                 out.writeUTF(tf.getText());
-                ta.setText(ta.getText().concat("\n").concat(tf.getText()));
+                ta.appendText(tf.getText()+"\n");
                 bt.setDisable(true);
                 tf.setText("");
             } catch (IOException e) {
@@ -42,14 +42,14 @@ public class Controller{
     }
 
     public void onClose(){
-        System.out.println("Trying to close...");
+        System.out.println("Обрабатывается закрытие программы по запросу пользователя.");
         Client.theStage.close();
     }
 
     public void onHelp(){
         TitledPane p = (TitledPane) Client.theScene.lookup("#helpPane");
         TextArea t = (TextArea) Client.theScene.lookup("#helpContent");
-        t.setText("JUST CHAT\nVersion 1.0\nBy Alexey Zimin\n\nGeekBrains JAVA 2 training course");
+        t.setText("JUST CHAT Client\nVersion 1.0\nBy Alexey Zimin\n\nGeekBrains JAVA 2 training course");
         p.setVisible(true);
     }
 
